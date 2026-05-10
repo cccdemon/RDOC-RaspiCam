@@ -28,5 +28,5 @@ for img in "${IMAGES[@]}"; do
 done
 
 echo "==> Saving combined tarball to ${OUT_TAR}"
-docker save -o "${OUT_TAR}" "${IMAGES[@]}"
+docker save --platform "${PLATFORM}" -o "${OUT_TAR}" "${IMAGES[@]}"
 echo "==> Size: $(du -h "${OUT_TAR}" | cut -f1)"
