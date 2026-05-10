@@ -1,0 +1,6 @@
+# Logitech HD Pro Webcam C920 (USB ID 046d:082d):
+# When plugged in, restart the streaming service so docker-compose
+# rebinds /dev/video0. Without this, mediamtx holds onto a stale device
+# node and a hot-replug results in a black stream.
+SUBSYSTEM=="usb", ATTR{idVendor}=="046d", ATTR{idProduct}=="082d", ACTION=="add",    RUN+="/bin/systemctl --no-block restart chaoscrew-streaming.service"
+SUBSYSTEM=="usb", ATTR{idVendor}=="046d", ATTR{idProduct}=="082d", ACTION=="remove", RUN+="/bin/systemctl --no-block stop chaoscrew-streaming.service"

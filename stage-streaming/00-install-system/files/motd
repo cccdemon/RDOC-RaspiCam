@@ -1,0 +1,17 @@
+
+   ____ _                       ____
+  / ___| |__   __ _  ___  ___  / ___|_ __ _____      __
+ | |   | '_ \ / _` |/ _ \/ __|| |   | '__/ _ \ \ /\ / /
+ | |___| | | | (_| | (_) \__ \| |___| | |  __/\ V  V /
+  \____|_| |_|\__,_|\___/|___/ \____|_|  \___| \_/\_/
+
+        Streaming Server (Pi 4 / Bookworm)
+
+   Web UI    : http://chaoscrew.local
+   Stream    : http://chaoscrew.local/webcam
+   Status    : systemctl status chaoscrew-streaming
+   Logs      : journalctl -u chaoscrew-streaming -f
+   Compose   : cd /opt/server-tech && docker compose ps
+   Camera    : v4l2-ctl --list-devices
+   Temp      : vcgencmd measure_temp
+

@@ -1,0 +1,80 @@
+# Pi-4-specific MediaMTX config.
+#
+# `start-streaming.sh prepare` renders this template into mediamtx.pi.yml at boot:
+#   __CAMERA_DEVICE__   →  detected /dev/video* path (C920 by USB ID, fallback first cam)
+#   __AUDIO_INPUT__     →  ffmpeg ALSA input args, OR empty if AUDIO_ENABLED=false
+#   __AUDIO_OUTPUT__    →  ffmpeg audio codec args (Opus), OR `-an`
+#
+# Default encoder: hardware H.264 via h264_v4l2m2m at 1920x1080@30, ~8 Mbps.
+# Default audio:   Opus 96k stereo, captured from the camera's USB mic (toggle in .env).
+#
+# CPU usage on Pi 4: ~15-25% (one core), well below thermal throttle threshold
+# even with passive cooling — but active cooling is still recommended for sustained
+# hours-long streams.
+#
+# Why Opus and not AAC: WebRTC requires Opus / G.711 / G.722 — Opus is the
+# standard. Encoding to Opus directly avoids a transcode in MediaMTX. Opus also
+# works in HLS-fmp4 (our HLS variant) and every modern browser.
+#
+# v4l2m2m quirks (acceptable for LAN streaming):
+#   - Occasional banding on flat colour surfaces
+#   - Sporadic GOP glitches under heavy motion
+#   - Profile must be constrained_baseline (high/main are unreliable)
+#   - No B-frames (-bf 0)
+#   - Bitrate is CBR via -b:v; no CRF support
+
+logLevel: info
+logDestinations: [stdout]
+
+rtmp:
+  enabled: yes
+  rtmpAddress: :1935
+rtsp:
+  enabled: yes
+  rtspAddress: :8322
+hls:
+  enabled: yes
+  hlsAddress: :8889
+  hlsVariant: fmp4
+  hlsSegmentCount: 3
+  hlsSegmentDuration: 2s
+  hlsPartDuration: 500ms
+webrtc:
+  enabled: yes
+  webrtcAddress: :8555
+  webrtcLocalUDPAddress: :8555
+  webrtcLocalTCPAddress: :8555
+api: yes
+apiAddress: :8888
+
+paths:
+  webcam:
+    runOnInit: >
+      ffmpeg -hide_banner -loglevel error
+      -f v4l2 -input_format mjpeg -video_size 1920x1080 -framerate 30
+      -i __CAMERA_DEVICE__
+      __AUDIO_INPUT__
+      -vf format=yuv420p
+      -c:v h264_v4l2m2m
+      -profile:v constrained_baseline
+      -b:v 8M -maxrate 8M -bufsize 16M -g 30 -bf 0
+      __AUDIO_OUTPUT__
+      -f rtsp -rtsp_transport tcp rtsp://localhost:8322/webcam
+    runOnInitRestart: yes
+
+# === Software-encoder fallback (libx264 ultrafast at 720p) ===============
+# If v4l2m2m artefacts become a blocker, swap the runOnInit above with the
+# block below. Pi 4 sustains 720p@30 libx264 ultrafast at ~50% CPU.
+# Optional: comment out /dev/video10..13 passthroughs in compose.override.yml
+# (they're not needed in software mode).
+#
+#   runOnInit: >
+#     ffmpeg -hide_banner -loglevel error
+#     -f v4l2 -input_format mjpeg -video_size 1280x720 -framerate 30
+#     -i __CAMERA_DEVICE__
+#     __AUDIO_INPUT__
+#     -c:v libx264 -preset ultrafast -tune zerolatency
+#     -profile:v baseline -level 3.1 -pix_fmt yuv420p
+#     -b:v 4M -maxrate 4M -bufsize 8M -g 30 -bf 0
+#     __AUDIO_OUTPUT__
+#     -f rtsp -rtsp_transport tcp rtsp://localhost:8322/webcam

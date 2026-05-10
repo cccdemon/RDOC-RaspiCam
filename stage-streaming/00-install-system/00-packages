@@ -1,0 +1,10 @@
+avahi-daemon
+avahi-utils
+v4l-utils
+alsa-utils
+jq
+chrony
+ca-certificates
+curl
+git
+log2ram

@@ -1,0 +1,8 @@
+deploy/*
+!deploy/.keep
+pi-gen/
+stage-streaming/20-install-streaming/files/images.tar
+*.img
+*.img.xz
+*.zip
+.DS_Store

@@ -1,0 +1,45 @@
+services:
+  mediamtx:
+    image: bluenviron/mediamtx:1-ffmpeg
+    devices:
+      # Camera (USB UVC, typically Logitech C920 → /dev/video0)
+      - ${CAMERA_DEVICE:-/dev/video0}:/dev/video0:rwm
+      # Pi 4 hardware H.264 encoder — required by h264_v4l2m2m.
+      # /dev/video10 = encoder, /dev/video11 = decoder, /dev/video12+13 = ISP.
+      # The kernel may expose only some of these on a given firmware version;
+      # forwarding all four is harmless and avoids a startup race.
+      - /dev/video10:/dev/video10:rwm
+      - /dev/video11:/dev/video11:rwm
+      - /dev/video12:/dev/video12:rwm
+      - /dev/video13:/dev/video13:rwm
+      # ALSA passthrough — required when AUDIO_ENABLED=true so ffmpeg can
+      # capture from the camera's USB microphone.
+      - /dev/snd:/dev/snd:rwm
+    cap_add:
+      - SYS_NICE
+    volumes:
+      - ./mediamtx.pi.yml:/mediamtx.yml:ro
+    deploy:
+      resources:
+        limits:
+          memory: 768M
+        reservations:
+          memory: 256M
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: rdoc-streaming-caddy
+    profiles: ["public"]
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./caddy_data:/data
+    environment:
+      - PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME}
+      - PUBLIC_EMAIL=${PUBLIC_EMAIL:-admin@example.com}
+    depends_on:
+      - web-ui
+      - mediamtx
+    restart: unless-stopped

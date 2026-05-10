@@ -1,0 +1,29 @@
+# Caddy reverse proxy + auto-TLS for public exposure.
+# Activated only when PUBLIC_HOSTNAME is set in /opt/server-tech/.env
+# (compose profile `public`).
+
+{
+    email {$PUBLIC_EMAIL}
+}
+
+{$PUBLIC_HOSTNAME} {
+    encode gzip
+
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains"
+        X-Frame-Options DENY
+        X-Content-Type-Options nosniff
+        Referrer-Policy strict-origin-when-cross-origin
+    }
+
+    # Web UI (nginx) at the root.
+    reverse_proxy web-ui:80
+
+    # MediaMTX HTTP API + HLS + WebRTC signaling.
+    handle /v3/* {
+        reverse_proxy mediamtx:8888
+    }
+    handle /webcam/* {
+        reverse_proxy mediamtx:8889
+    }
+}

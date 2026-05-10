@@ -1,0 +1,19 @@
+[Unit]
+Description=Chaos Crew Streaming (mediamtx + nginx via docker compose)
+Documentation=https://github.com/raumdock/RaspiImage
+After=docker.service network-online.target
+Wants=docker.service network-online.target
+Requires=docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=/opt/server-tech
+EnvironmentFile=-/opt/server-tech/.env
+ExecStartPre=/opt/server-tech/start-streaming.sh prepare
+ExecStart=/opt/server-tech/start-streaming.sh up
+ExecStop=/opt/server-tech/start-streaming.sh down
+TimeoutStartSec=300
+
+[Install]
+WantedBy=multi-user.target

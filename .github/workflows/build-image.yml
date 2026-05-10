@@ -1,0 +1,81 @@
+name: Build Pi 4 streaming image
+
+on:
+  workflow_dispatch:
+    inputs:
+      server_tech_ref:
+        description: "Server-tech git ref to snapshot (branch, tag, or sha)"
+        required: false
+        default: "main"
+      server_tech_repo:
+        description: "Server-tech repository (owner/name)"
+        required: false
+        default: "raumdock/Server-tech"
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    permissions:
+      contents: write   # needed for tag-triggered Release upload
+
+    steps:
+      - name: Checkout RaspiImage
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU (linux/arm64 emulation for docker)
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64
+
+      - name: Verify mediamtx ARM64 image has libx264 (and v4l2m2m if present)
+        run: make mediamtx-check
+
+      - name: Pre-pull docker images for the rootfs
+        run: bash tools/prepull-images.sh
+
+      - name: Clone pi-gen
+        run: |
+          set -e
+          git clone --depth=1 --branch arm64 https://github.com/RPi-Distro/pi-gen.git
+          cp pi-gen.config pi-gen/config
+          cp -r stage-streaming pi-gen/stage-streaming
+
+      - name: Build pi-gen image
+        run: |
+          set -e
+          cd pi-gen
+          sudo --preserve-env=SERVER_TECH_REPO,SERVER_TECH_REF CLEAN=1 ./build-docker.sh
+        env:
+          DEPLOY_COMPRESSION: xz
+          SERVER_TECH_REPO: ${{ github.event.inputs.server_tech_repo || 'raumdock/Server-tech' }}
+          SERVER_TECH_REF: ${{ github.event.inputs.server_tech_ref || 'main' }}
+
+      - name: Stage deploy artifacts
+        run: |
+          set -e
+          mkdir -p deploy
+          cp pi-gen/deploy/*.img.xz deploy/ || cp pi-gen/deploy/*.img deploy/
+          cd deploy
+          for f in *.img.xz *.img; do
+            [ -e "$f" ] || continue
+            sha256sum "$f" > "$f.sha256"
+          done
+          ls -lh
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: chaoscrew-streaming-image
+          path: deploy/*
+          retention-days: 30
+
+      - name: Create GitHub Release (on tag)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: deploy/*
+          generate_release_notes: true
