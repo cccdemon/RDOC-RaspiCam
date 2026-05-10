@@ -26,15 +26,15 @@ jobs:
       - name: Checkout RaspiImage
         uses: actions/checkout@v4
 
+      - name: Install qemu-aarch64 host binary for pi-gen
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-user
+
       - name: Set up QEMU (linux/arm64 emulation for docker)
         uses: docker/setup-qemu-action@v3
         with:
           platforms: arm64
-
-      - name: Install qemu-aarch64 host binary for pi-gen
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y qemu-user-binfmt
 
       - name: Verify mediamtx ARM64 image has libx264 (and v4l2m2m if present)
         run: make mediamtx-check
