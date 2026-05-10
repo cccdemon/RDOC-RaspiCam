@@ -40,11 +40,14 @@ jobs:
       - name: Clone pi-gen
         run: |
           set -e
+          sudo apt-get update
+          sudo apt-get install -y debian-archive-keyring
           git clone --depth=1 --branch arm64 https://github.com/RPi-Distro/pi-gen.git
           cp pi-gen.config pi-gen/config
           cp -r stage-streaming pi-gen/stage-streaming
           sed -i 's/binfmt_misc_required=1/binfmt_misc_required=0/' pi-gen/build-docker.sh
-          cp /usr/share/keyrings/debian-archive-keyring.gpg pi-gen/stage0/00-configure-apt/files/debian-archive-keyring.pgp
+          cp /usr/share/keyrings/debian-archive-keyring.gpg pi-gen/stage0/00-configure-apt/files/debian-archive-keyring.pgp \
+            || cp /usr/share/keyrings/debian-archive-keyring.pgp pi-gen/stage0/00-configure-apt/files/debian-archive-keyring.pgp
           sed -i '/raspberrypi-archive-keyring.pgp/a install -m 644 files/debian-archive-keyring.pgp "${ROOTFS_DIR}/usr/share/keyrings/"' pi-gen/stage0/00-configure-apt/00-run.sh
 
       - name: Build pi-gen image
