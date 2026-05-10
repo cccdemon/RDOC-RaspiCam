@@ -26,11 +26,6 @@ jobs:
       - name: Checkout RaspiImage
         uses: actions/checkout@v4
 
-      - name: Install qemu-aarch64 host binary for pi-gen
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y qemu-user
-
       - name: Set up QEMU (linux/arm64 emulation for docker)
         uses: docker/setup-qemu-action@v3
         with:
@@ -48,6 +43,7 @@ jobs:
           git clone --depth=1 --branch arm64 https://github.com/RPi-Distro/pi-gen.git
           cp pi-gen.config pi-gen/config
           cp -r stage-streaming pi-gen/stage-streaming
+          sed -i 's/binfmt_misc_required=1/binfmt_misc_required=0/' pi-gen/build-docker.sh
 
       - name: Build pi-gen image
         run: |
