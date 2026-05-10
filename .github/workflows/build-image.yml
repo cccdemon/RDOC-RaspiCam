@@ -51,12 +51,18 @@ jobs:
         run: |
           set +e
           cd pi-gen
-          sudo --preserve-env=SERVER_TECH_REPO,SERVER_TECH_REF CLEAN=1 ./build-docker.sh
-          status=$?
+          sudo --preserve-env=SERVER_TECH_REPO,SERVER_TECH_REF CLEAN=1 ./build-docker.sh 2>&1 | tee ../pigen-full.log
+          status=${PIPESTATUS[0]}
           echo "$status" > ../pigen-status
           if [ "$status" -ne 0 ]; then
             echo "::group::pi-gen failure logs"
-            find work deploy -type f \( -name 'build.log' -o -name 'build-docker.log' \) -print -exec tail -n 200 {} \; 2>/dev/null | tee ../pigen-failure-tail.txt || true
+            {
+              echo "== build-docker console =="
+              tail -n 220 ../pigen-full.log
+              echo
+              echo "== pi-gen copied logs =="
+              find work deploy -type f \( -name 'build.log' -o -name 'build-docker.log' \) -print -exec tail -n 200 {} \; 2>/dev/null || true
+            } | tee ../pigen-failure-tail.txt
             echo "::endgroup::"
           fi
           exit "$status"
