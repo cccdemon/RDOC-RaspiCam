@@ -23,6 +23,14 @@ install -d -m 755 "${ROOTFS_DIR}/etc/systemd/system.conf.d"
 install -v -m 644 files/streaming.watchdog.conf \
     "${ROOTFS_DIR}/etc/systemd/system.conf.d/10-streaming-watchdog.conf"
 
+# 3a. /var/log on tmpfs — saves SD writes. Logs don't survive reboot, which is
+#     fine for an appliance; journald + ssh + chaoscrew-streaming all log to
+#     stdout and are accessible via `journalctl` while running.
+FSTAB="${ROOTFS_DIR}/etc/fstab"
+if ! grep -q 'tmpfs /var/log' "${FSTAB}"; then
+    echo "tmpfs /var/log tmpfs defaults,noatime,nosuid,nodev,size=128M,mode=755 0 0" >> "${FSTAB}"
+fi
+
 on_chroot << 'EOF'
 set -e
 

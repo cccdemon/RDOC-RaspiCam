@@ -36,7 +36,7 @@ Ein bootbares `.img.xz`-File (~ 800 MB komprimiert, ~ 3 GB entpackt) das:
 - Docker-Images **vorgepullt** im Image — kein 5-Min-Wait beim Erstboot
 - systemd-Service `chaoscrew-streaming.service` läuft beim Boot automatisch hoch
 - udev-Regel: bei C920-(Wieder)-Anstecken neustart des Streams
-- tmpfs für `/var/log` + log2ram, ext4 commit=600 — schont die SD
+- tmpfs für `/var/log` (via fstab), ext4 commit=600 — schont die SD
 - Hardware-Watchdog (BCM2835) aktiviert, Reboot bei Hang nach 15 s
 - Optional: Caddy-Container mit Auto-TLS via `.env` `PUBLIC_HOSTNAME=`
 
@@ -193,7 +193,7 @@ RaspiImage/
 ├── stage-streaming/              # custom pi-gen stage on top of stage2 Lite
 │   ├── prerun.sh
 │   ├── EXPORT_IMAGE              # marks this stage as image-producing
-│   ├── 00-install-system/        # apt packages (incl. git), avahi, log2ram, systemd, udev
+│   ├── 00-install-system/        # apt packages (incl. git, alsa-utils), avahi, systemd, udev, motd
 │   ├── 10-install-docker/        # Docker + Compose plugin
 │   ├── 20-install-streaming/     # git-clone Server-tech in chroot + Pi-Overrides
 │   └── 30-finalize/              # commit=600, watchdog, swap-off, BT/UART aus
