@@ -1,6 +1,6 @@
 services:
   mediamtx:
-    image: bluenviron/mediamtx:1-ffmpeg
+    image: bluenviron/mediamtx:1-ffmpeg-rpi
     devices:
       # Camera (USB UVC, typically Logitech C920 → /dev/video0)
       - ${CAMERA_DEVICE:-/dev/video0}:/dev/video0:rwm

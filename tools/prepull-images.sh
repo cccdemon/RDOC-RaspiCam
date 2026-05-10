@@ -11,7 +11,7 @@ set -euo pipefail
 
 PLATFORM=linux/arm64
 IMAGES=(
-  "bluenviron/mediamtx:1-ffmpeg"
+  "bluenviron/mediamtx:1-ffmpeg-rpi"
   "nginx:alpine"
   "caddy:2-alpine"
 )

@@ -82,17 +82,17 @@ clean:
 	rm -rf $(DEPLOY_DIR)/*
 
 mediamtx-check:
-	@echo "Verifying ffmpeg capabilities in bluenviron/mediamtx:1-ffmpeg (linux/arm64)..."
+	@echo "Verifying ffmpeg capabilities in bluenviron/mediamtx:1-ffmpeg-rpi (linux/arm64)..."
 	@docker run --rm --platform linux/arm64 --entrypoint ffmpeg \
-	  bluenviron/mediamtx:1-ffmpeg -hide_banner -encoders 2>&1 \
+	  bluenviron/mediamtx:1-ffmpeg-rpi -hide_banner -encoders 2>&1 \
 	  | grep -E '(h264_v4l2m2m|libx264)' \
 	  || { echo "FAIL: no H.264 encoder (v4l2m2m or libx264)"; exit 1; }
 	@docker run --rm --platform linux/arm64 --entrypoint ffmpeg \
-	  bluenviron/mediamtx:1-ffmpeg -hide_banner -encoders 2>&1 \
+	  bluenviron/mediamtx:1-ffmpeg-rpi -hide_banner -encoders 2>&1 \
 	  | grep -E 'libopus' \
 	  || { echo "FAIL: libopus (audio) missing"; exit 1; }
 	@docker run --rm --platform linux/arm64 --entrypoint ffmpeg \
-	  bluenviron/mediamtx:1-ffmpeg -hide_banner -demuxers 2>&1 \
+	  bluenviron/mediamtx:1-ffmpeg-rpi -hide_banner -demuxers 2>&1 \
 	  | grep -E '\balsa\b' \
 	  || { echo "FAIL: ALSA demuxer missing — audio capture won't work"; exit 1; }
 	@echo "OK — H.264 encoder + Opus + ALSA all present"
