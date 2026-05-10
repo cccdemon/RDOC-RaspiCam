@@ -30,7 +30,7 @@ Ein bootbares `.img.xz`-File (~ 800 MB komprimiert, ~ 3 GB entpackt) das:
 - Hostname `chaoscrew`, SSH aktiviert (Konfig kommt vom RPi-Imager-Preconfig-Step)
 - avahi/mDNS broadcastet `chaoscrew.local`
 - Docker + Docker-Compose vorinstalliert
-- Server-Tech als **echtes Git-Working-Tree** in `/opt/server-tech` (geclont während Build aus `raumdock/Server-tech`, Default-Ref `main`) — Updates via `cd /opt/server-tech && git pull && sudo systemctl restart chaoscrew-streaming`
+- Server-Tech als **echtes Git-Working-Tree** in `/opt/server-tech` (geclont während Build aus `cccdemon/homecam-docker`, Default-Ref `main`) — Updates via `cd /opt/server-tech && git pull && sudo systemctl restart chaoscrew-streaming`
 - Pi-spezifischer ffmpeg-Pfad (Hardware-Encoder `h264_v4l2m2m`, 1920x1080@30, ~8 Mbps) in `mediamtx.pi.template.yml`
 - Audio-Capture vom USB-Kamera-Mikro (C920 Stereo) als Opus 96k — Default an, toggle via `AUDIO_ENABLED` in `.env`
 - Docker-Images **vorgepullt** im Image — kein 5-Min-Wait beim Erstboot
@@ -47,7 +47,7 @@ Ein bootbares `.img.xz`-File (~ 800 MB komprimiert, ~ 3 GB entpackt) das:
 `make image`:
 1. Triggert das Workflow `.github/workflows/build-image.yml` auf `main`.
 2. Workflow läuft auf `ubuntu-24.04`, klont pi-gen, kopiert unsere `stage-streaming/` rein, baut.
-3. Im Build-Stage 20 macht der pi-gen-chroot ein `git clone --depth=1 --branch=$SERVER_TECH_REF` von `raumdock/Server-tech` direkt nach `/opt/server-tech`. Standard-Ref: `main`. Über die Workflow-Inputs `server_tech_repo` / `server_tech_ref` kannst du beim manuellen Trigger auf einen Tag oder SHA pinnen.
+3. Im Build-Stage 20 macht der pi-gen-chroot ein `git clone --depth=1 --branch=$SERVER_TECH_REF` von `cccdemon/homecam-docker` direkt nach `/opt/server-tech`. Standard-Ref: `main`. Über die Workflow-Inputs `server_tech_repo` / `server_tech_ref` kannst du beim manuellen Trigger auf einen Tag oder SHA pinnen.
 4. Output: `chaoscrew-streaming-YYYYMMDD.img.xz` + `.sha256` als Artifact.
 5. `gh run download` zieht das Artifact ins lokale `deploy/`.
 

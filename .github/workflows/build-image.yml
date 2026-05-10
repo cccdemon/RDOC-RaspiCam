@@ -10,7 +10,7 @@ on:
       server_tech_repo:
         description: "Server-tech repository (owner/name)"
         required: false
-        default: "raumdock/Server-tech"
+        default: "cccdemon/homecam-docker"
   push:
     tags:
       - "v*"
@@ -51,7 +51,7 @@ jobs:
           sudo --preserve-env=SERVER_TECH_REPO,SERVER_TECH_REF CLEAN=1 ./build-docker.sh
         env:
           DEPLOY_COMPRESSION: xz
-          SERVER_TECH_REPO: ${{ github.event.inputs.server_tech_repo || 'raumdock/Server-tech' }}
+          SERVER_TECH_REPO: ${{ github.event.inputs.server_tech_repo || 'cccdemon/homecam-docker' }}
           SERVER_TECH_REF: ${{ github.event.inputs.server_tech_ref || 'main' }}
 
       - name: Stage deploy artifacts

@@ -31,7 +31,7 @@ image:
 	  gh run download $$RUN_ID --dir $(DEPLOY_DIR)
 	@ls -lh $(DEPLOY_DIR)/
 
-SERVER_TECH_REPO ?= raumdock/Server-tech
+SERVER_TECH_REPO ?= cccdemon/homecam-docker
 SERVER_TECH_REF  ?= main
 
 image-local:
