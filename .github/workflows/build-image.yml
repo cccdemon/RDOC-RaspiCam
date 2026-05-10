@@ -31,6 +31,11 @@ jobs:
         with:
           platforms: arm64
 
+      - name: Install qemu-aarch64 host binary for pi-gen
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-user-binfmt
+
       - name: Verify mediamtx ARM64 image has libx264 (and v4l2m2m if present)
         run: make mediamtx-check
 
