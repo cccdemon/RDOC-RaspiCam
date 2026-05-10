@@ -10,8 +10,9 @@
 set -euo pipefail
 
 PLATFORM=linux/arm64
+MEDIAMTX_IMAGE="chaoscrew/mediamtx-pi-ffmpeg:local"
 IMAGES=(
-  "bluenviron/mediamtx:1-ffmpeg-rpi"
+  "${MEDIAMTX_IMAGE}"
   "nginx:alpine"
   "caddy:2-alpine"
 )
@@ -22,9 +23,17 @@ OUT_TAR="${OUT_DIR}/images.tar"
 
 mkdir -p "${OUT_DIR}"
 
+echo "==> Building ${MEDIAMTX_IMAGE} for ${PLATFORM}"
+docker build --platform "${PLATFORM}" \
+  -f "${SCRIPT_DIR}/mediamtx-pi-ffmpeg.Dockerfile" \
+  -t "${MEDIAMTX_IMAGE}" \
+  "${SCRIPT_DIR}/.."
+
 for img in "${IMAGES[@]}"; do
   echo "==> Pulling ${img} for ${PLATFORM}"
-  docker pull --platform "${PLATFORM}" "${img}"
+  if [ "${img}" != "${MEDIAMTX_IMAGE}" ]; then
+    docker pull --platform "${PLATFORM}" "${img}"
+  fi
 done
 
 echo "==> Saving combined tarball to ${OUT_TAR}"

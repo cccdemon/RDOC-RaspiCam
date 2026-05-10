@@ -12,6 +12,7 @@ SHELL := /bin/bash
 DEPLOY_DIR := deploy
 GH_WORKFLOW := build-image.yml
 GH_REF := main
+MEDIAMTX_IMAGE := chaoscrew/mediamtx-pi-ffmpeg:local
 
 .PHONY: image image-local flash-prep verify clean mediamtx-check help
 
@@ -82,17 +83,19 @@ clean:
 	rm -rf $(DEPLOY_DIR)/*
 
 mediamtx-check:
-	@echo "Verifying ffmpeg capabilities in bluenviron/mediamtx:1-ffmpeg-rpi (linux/arm64)..."
+	@echo "Building $(MEDIAMTX_IMAGE) for linux/arm64..."
+	docker build --platform linux/arm64 -f tools/mediamtx-pi-ffmpeg.Dockerfile -t $(MEDIAMTX_IMAGE) .
+	@echo "Verifying ffmpeg capabilities in $(MEDIAMTX_IMAGE) (linux/arm64)..."
 	@docker run --rm --platform linux/arm64 --entrypoint ffmpeg \
-	  bluenviron/mediamtx:1-ffmpeg-rpi -hide_banner -encoders 2>&1 \
+	  $(MEDIAMTX_IMAGE) -hide_banner -encoders 2>&1 \
 	  | grep -E '(h264_v4l2m2m|libx264)' \
 	  || { echo "FAIL: no H.264 encoder (v4l2m2m or libx264)"; exit 1; }
 	@docker run --rm --platform linux/arm64 --entrypoint ffmpeg \
-	  bluenviron/mediamtx:1-ffmpeg-rpi -hide_banner -encoders 2>&1 \
+	  $(MEDIAMTX_IMAGE) -hide_banner -encoders 2>&1 \
 	  | grep -E 'libopus' \
 	  || { echo "FAIL: libopus (audio) missing"; exit 1; }
 	@docker run --rm --platform linux/arm64 --entrypoint ffmpeg \
-	  bluenviron/mediamtx:1-ffmpeg-rpi -hide_banner -demuxers 2>&1 \
+	  $(MEDIAMTX_IMAGE) -hide_banner -demuxers 2>&1 \
 	  | grep -E '\balsa\b' \
 	  || { echo "FAIL: ALSA demuxer missing — audio capture won't work"; exit 1; }
 	@echo "OK — H.264 encoder + Opus + ALSA all present"
