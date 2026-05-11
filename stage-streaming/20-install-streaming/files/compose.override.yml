@@ -44,4 +44,6 @@ services:
     depends_on:
       - web-ui
       - mediamtx
+    networks:
+      - streaming
     restart: unless-stopped
