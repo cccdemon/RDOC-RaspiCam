@@ -121,6 +121,7 @@ case "${1:-up}" in
         -f docker-compose.yml \
         -f compose.override.yml \
         --env-file .env \
+        --env-file .runtime.env \
         ${PROFILE_ARGS} \
         up -d --remove-orphans
     ;;
@@ -135,6 +136,7 @@ case "${1:-up}" in
         -f docker-compose.yml \
         -f compose.override.yml \
         --env-file .env \
+        --env-file .runtime.env \
         ${PROFILE_ARGS} \
         down
     ;;

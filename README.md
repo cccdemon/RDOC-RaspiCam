@@ -2,7 +2,33 @@
 
 Pi-OS-Lite-basiertes Image für Raspberry Pi 4, das nach erstem Boot von alleine einen WebRTC-Stream der angeschlossenen Logitech-C920-Kamera serviert. Image wird via GitHub Actions in der Cloud gebaut.
 
-## Quick Start
+## Quick Start (empfohlen: Stock-Image + Setup-Script)
+
+```bash
+# 1. Raspberry Pi OS Lite 64-bit mit Raspberry Pi Imager flashen
+#    Hostname: chaoscrew, SSH aktivieren, WLAN setzen
+
+# 2. Pi booten, per SSH verbinden
+ssh streamer@chaoscrew.local
+
+# 3. Setup-Repo klonen und Installer starten
+git clone https://github.com/cccdemon/RDOC-RaspiCam.git
+cd RDOC-RaspiCam
+sudo scripts/install-on-pi.sh
+
+# 4. Browser
+# http://chaoscrew.local
+```
+
+Der Installer macht den bisherigen Image-Build zur Laufzeit auf dem Pi: Docker installieren, `cccdemon/homecam-docker` nach `/opt/server-tech` klonen, Pi-Overrides kopieren, MediaMTX+ffmpeg-Container bauen, systemd/udev/avahi/watchdog konfigurieren und den Stream starten.
+
+Optional:
+
+```bash
+SERVER_TECH_REPO=cccdemon/homecam-docker SERVER_TECH_REF=main sudo -E scripts/install-on-pi.sh
+```
+
+## Quick Start (Legacy: eigenes Image bauen)
 
 ```powershell
 # 1. Image bauen (auf GitHub Actions, ~25 min)
