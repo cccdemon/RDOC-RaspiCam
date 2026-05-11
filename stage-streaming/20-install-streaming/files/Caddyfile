@@ -20,6 +20,10 @@
         Referrer-Policy strict-origin-when-cross-origin
     }
 
+    basic_auth {
+        {$BASIC_AUTH_USER} {$BASIC_AUTH_HASH}
+    }
+
     # MediaMTX HTTP API + HLS + WebRTC signaling.
     handle /v3/* {
         reverse_proxy mediamtx:8888

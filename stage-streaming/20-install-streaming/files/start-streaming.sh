@@ -118,6 +118,11 @@ case "${1:-up}" in
   up)
     PROFILE_ARGS=""
     if [ -n "${PUBLIC_HOSTNAME:-}" ]; then
+        if [ -z "${BASIC_AUTH_USER:-}" ] || [ -z "${BASIC_AUTH_HASH:-}" ]; then
+            echo "[up] FATAL: PUBLIC_HOSTNAME is set but BASIC_AUTH_USER/BASIC_AUTH_HASH are missing" >&2
+            echo "[up] Generate a hash with: docker run --rm caddy:2-alpine caddy hash-password --plaintext 'your-password'" >&2
+            exit 1
+        fi
         echo "[up] Public mode: PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME}"
         PROFILE_ARGS="--profile public"
     else
