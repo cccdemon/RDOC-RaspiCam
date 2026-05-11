@@ -26,25 +26,25 @@
 logLevel: info
 logDestinations: [stdout]
 
-rtmp:
-  enabled: yes
-  rtmpAddress: :1935
-rtsp:
-  enabled: yes
-  rtspAddress: :8322
-hls:
-  enabled: yes
-  hlsAddress: :8889
-  hlsVariant: fmp4
-  hlsSegmentCount: 3
-  hlsSegmentDuration: 2s
-  hlsPartDuration: 500ms
-webrtc:
-  enabled: yes
-  webrtcAddress: :8555
-  webrtcLocalUDPAddress: :8555
-  webrtcLocalTCPAddress: :8555
-api: yes
+rtmp: true
+rtmpAddress: :1935
+
+rtsp: true
+rtspAddress: :8322
+
+hls: true
+hlsAddress: :8889
+hlsVariant: fmp4
+hlsSegmentCount: 3
+hlsSegmentDuration: 2s
+hlsPartDuration: 500ms
+
+webrtc: true
+webrtcAddress: :8555
+webrtcLocalUDPAddress: :8555
+webrtcLocalTCPAddress: :8555
+
+api: true
 apiAddress: :8888
 
 paths:
