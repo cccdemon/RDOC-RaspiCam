@@ -42,6 +42,7 @@ hlsPartDuration: 500ms
 webrtc: true
 webrtcAddress: :8555
 webrtcLocalUDPAddress: :8189
+webrtcAdditionalHosts: __WEBRTC_ADDITIONAL_HOSTS__
 # Keep the optional WebRTC-over-TCP ICE listener off the signaling port.
 # Uncomment if UDP 8189 is blocked and expose/forward TCP 8189 as well.
 # webrtcLocalTCPAddress: :8189

@@ -92,6 +92,13 @@ case "${1:-up}" in
         echo "[prepare] Audio: disabled (AUDIO_ENABLED=${AUDIO_ENABLED:-true})"
     fi
 
+    WEBRTC_HOSTS="[]"
+    if [ -n "${PUBLIC_HOSTNAME:-}" ]; then
+        WEBRTC_HOSTS="[${PUBLIC_HOSTNAME}]"
+    elif [ -n "${CONTAINER_DOMAIN:-}" ]; then
+        WEBRTC_HOSTS="[${CONTAINER_DOMAIN}]"
+    fi
+
     # 4. Render mediamtx.pi.yml from template. We use a delimiter that won't
     #    appear in our values (`|`); audio args contain spaces and slashes
     #    that would break a `/`-delimited sed.
@@ -99,6 +106,7 @@ case "${1:-up}" in
         -e "s|__CAMERA_DEVICE__|${CAM_DEV}|g" \
         -e "s|__AUDIO_INPUT__|${AUDIO_INPUT_ARGS}|g" \
         -e "s|__AUDIO_OUTPUT__|${AUDIO_OUTPUT_ARGS}|g" \
+        -e "s|__WEBRTC_ADDITIONAL_HOSTS__|${WEBRTC_HOSTS}|g" \
         mediamtx.pi.template.yml > mediamtx.pi.yml
 
     # 5. Export the resolved camera device for compose.override.yml.

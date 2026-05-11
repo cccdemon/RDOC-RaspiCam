@@ -1,6 +1,9 @@
 services:
   mediamtx:
     image: chaoscrew/mediamtx-pi-ffmpeg:local
+    ports:
+      # WebRTC media ICE port. Signaling remains on 8555/tcp.
+      - "8189:8189/udp"
     devices:
       # Camera (USB UVC, typically Logitech C920 → /dev/video0)
       - ${CAMERA_DEVICE:-/dev/video0}:/dev/video0:rwm
