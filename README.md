@@ -159,7 +159,7 @@ Caddy holt Let's-Encrypt-Cert automatisch (HTTP-01-Challenge), Stream ist von au
 Pi 4 hat einen Hardware-H.264-Encoder (BCM2711 V4L2 M2M). Default-Config nutzt ihn für 1920x1080@30 bei ~8 Mbps:
 
 - **CPU**: ~15-25 % auf einem Core. Bleibt unter Throttle-Schwelle, aber **aktive Kühlung ist trotzdem dringend empfohlen** für stundenlanges Streaming.
-- **Profil**: `constrained_baseline`. WebRTC-kompatibel, in jedem Browser. High-Profile ist auf v4l2m2m unzuverlässig — nicht ändern.
+- **Profil**: `baseline`. WebRTC-kompatibel, in jedem Browser. High-Profile ist auf v4l2m2m unzuverlässig — nicht ändern.
 - **Keine B-Frames** (`-bf 0`): Encoder unterstützt sie nicht.
 - **CBR statt CRF**: v4l2m2m kann nur Bitrate-basiert, kein CRF. `-b:v 8M -maxrate 8M`.
 
