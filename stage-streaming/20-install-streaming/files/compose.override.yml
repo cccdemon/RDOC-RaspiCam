@@ -31,7 +31,8 @@ services:
     container_name: rdoc-streaming-caddy
     profiles: ["public"]
     ports:
-      - "80:80"
+      # DNS-01 via Cloudflare does not need HTTP-01 on port 80.
+      # Keeping host port 80 free avoids conflicts with the LAN web-ui binding.
       - "443:443"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
