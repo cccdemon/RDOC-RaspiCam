@@ -156,12 +156,14 @@ Caddy holt Let's-Encrypt-Cert automatisch (HTTP-01-Challenge), Stream ist von au
 
 ## Encoder: h264_v4l2m2m bei 1080p@30 (Default)
 
-Pi 4 hat einen Hardware-H.264-Encoder (BCM2711 V4L2 M2M). Default-Config nutzt ihn für 1920x1080@30 bei ~8 Mbps:
+Pi 4 hat einen Hardware-H.264-Encoder (BCM2711 V4L2 M2M). Default-Config nutzt `VIDEO_MODE=auto`: Wenn die C920 einen nativen H.264-Modus anbietet, wird dieser per `-c:v copy` direkt durchgereicht. Sonst nutzt ffmpeg den Pi-4-Hardware-Encoder für 1920x1080@30 bei ~8 Mbps:
 
 - **CPU**: ~15-25 % auf einem Core. Bleibt unter Throttle-Schwelle, aber **aktive Kühlung ist trotzdem dringend empfohlen** für stundenlanges Streaming.
 - **Profil**: nicht erzwungen. Manche `h264_v4l2m2m`-Builds lehnen Profilnamen wie `baseline` oder `constrained_baseline` ab; der Encoder-Default ist für WebRTC hier stabiler.
 - **Keine B-Frames** (`-bf 0`): Encoder unterstützt sie nicht.
 - **CBR statt CRF**: v4l2m2m kann nur Bitrate-basiert, kein CRF. `-b:v 8M -maxrate 8M`.
+
+**Performance-Hinweis**: Der Pi-Encoder beschleunigt nur das H.264-Encoding. MJPEG-Decode und Pixel-Format-Konvertierung bleiben CPU-Arbeit. Für die niedrigste CPU-Last ist `VIDEO_MODE=camera_h264` ideal, weil die C920 dann H.264 selbst liefert und ffmpeg nur noch remuxt.
 
 ### Bekannte Quirks von v4l2m2m auf Pi 4
 

@@ -54,6 +54,13 @@ detect_audio_card() {
     echo "${card}"
 }
 
+camera_supports_h264() {
+    local cam="$1"
+    command -v v4l2-ctl >/dev/null 2>&1 || return 1
+    v4l2-ctl -d "${cam}" --list-formats-ext 2>/dev/null \
+        | grep -Eiq "'H264'|H\.264|H264"
+}
+
 # ---------------------------------------------------------------------------
 
 case "${1:-up}" in
@@ -74,7 +81,38 @@ case "${1:-up}" in
     fi
     echo "[prepare] Camera: ${CAM_DEV}"
 
-    # 3. Resolve audio inputs based on AUDIO_ENABLED flag in .env.
+    # 3. Resolve video path. Prefer the C920's native H.264 stream when
+    #    available; it avoids software MJPEG decode and Pi re-encode load.
+    VIDEO_INPUT_ARGS=""
+    VIDEO_OUTPUT_ARGS=""
+    VIDEO_MODE_RESOLVED="${VIDEO_MODE:-auto}"
+
+    if [ "${VIDEO_MODE_RESOLVED}" = "auto" ]; then
+        if camera_supports_h264 "${CAM_DEV}"; then
+            VIDEO_MODE_RESOLVED="camera_h264"
+        else
+            VIDEO_MODE_RESOLVED="pi_h264"
+        fi
+    fi
+
+    case "${VIDEO_MODE_RESOLVED}" in
+      camera_h264)
+        echo "[prepare] Video: C920 native H.264 passthrough (no re-encode)"
+        VIDEO_INPUT_ARGS="-f v4l2 -input_format h264 -video_size 1920x1080 -framerate 30 -i ${CAM_DEV}"
+        VIDEO_OUTPUT_ARGS="-c:v copy"
+        ;;
+      pi_h264)
+        echo "[prepare] Video: MJPEG input -> Pi h264_v4l2m2m encoder"
+        VIDEO_INPUT_ARGS="-f v4l2 -input_format mjpeg -video_size 1920x1080 -framerate 30 -i ${CAM_DEV}"
+        VIDEO_OUTPUT_ARGS="-vf format=yuv420p -c:v h264_v4l2m2m -b:v 8M -maxrate 8M -bufsize 16M -g 30 -bf 0"
+        ;;
+      *)
+        echo "[prepare] FATAL: unsupported VIDEO_MODE=${VIDEO_MODE_RESOLVED} (use auto, camera_h264, or pi_h264)" >&2
+        exit 1
+        ;;
+    esac
+
+    # 4. Resolve audio inputs based on AUDIO_ENABLED flag in .env.
     AUDIO_INPUT_ARGS=""
     AUDIO_OUTPUT_ARGS="-an"
 
@@ -99,17 +137,19 @@ case "${1:-up}" in
         WEBRTC_HOSTS="[${CONTAINER_DOMAIN}]"
     fi
 
-    # 4. Render mediamtx.pi.yml from template. We use a delimiter that won't
+    # 5. Render mediamtx.pi.yml from template. We use a delimiter that won't
     #    appear in our values (`|`); audio args contain spaces and slashes
     #    that would break a `/`-delimited sed.
     sed \
         -e "s|__CAMERA_DEVICE__|${CAM_DEV}|g" \
+        -e "s|__VIDEO_INPUT__|${VIDEO_INPUT_ARGS}|g" \
+        -e "s|__VIDEO_OUTPUT__|${VIDEO_OUTPUT_ARGS}|g" \
         -e "s|__AUDIO_INPUT__|${AUDIO_INPUT_ARGS}|g" \
         -e "s|__AUDIO_OUTPUT__|${AUDIO_OUTPUT_ARGS}|g" \
         -e "s|__WEBRTC_ADDITIONAL_HOSTS__|${WEBRTC_HOSTS}|g" \
         mediamtx.pi.template.yml > mediamtx.pi.yml
 
-    # 5. Export the resolved camera device for compose.override.yml.
+    # 6. Export the resolved camera device for compose.override.yml.
     {
         echo "CAMERA_DEVICE=${CAM_DEV}"
     } > .runtime.env
