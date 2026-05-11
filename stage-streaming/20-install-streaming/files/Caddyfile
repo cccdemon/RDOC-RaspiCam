@@ -20,14 +20,25 @@
         Referrer-Policy strict-origin-when-cross-origin
     }
 
-    # Web UI (nginx) at the root.
-    reverse_proxy web-ui:80
-
     # MediaMTX HTTP API + HLS + WebRTC signaling.
     handle /v3/* {
         reverse_proxy mediamtx:8888
     }
-    handle /webcam/* {
+    handle /webcam/whep* {
+        reverse_proxy mediamtx:8555
+    }
+    handle /webcam {
+        reverse_proxy mediamtx:8555
+    }
+    handle /webcam/*.m3u8 {
         reverse_proxy mediamtx:8889
+    }
+    handle /webcam/*.mp4 {
+        reverse_proxy mediamtx:8889
+    }
+
+    # Web UI (nginx) at the root.
+    handle {
+        reverse_proxy web-ui:80
     }
 }
