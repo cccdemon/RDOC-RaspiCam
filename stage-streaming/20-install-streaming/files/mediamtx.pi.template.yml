@@ -19,7 +19,7 @@
 # v4l2m2m quirks (acceptable for LAN streaming):
 #   - Occasional banding on flat colour surfaces
 #   - Sporadic GOP glitches under heavy motion
-#   - Profile must be baseline (high/main are unreliable)
+#   - Do not force -profile:v; some v4l2m2m builds reject profile names.
 #   - No B-frames (-bf 0)
 #   - Bitrate is CBR via -b:v; no CRF support
 
@@ -79,7 +79,6 @@ paths:
       __AUDIO_INPUT__
       -vf format=yuv420p
       -c:v h264_v4l2m2m
-      -profile:v baseline
       -b:v 8M -maxrate 8M -bufsize 16M -g 30 -bf 0
       __AUDIO_OUTPUT__
       -f rtsp -rtsp_transport tcp rtsp://localhost:8322/webcam
