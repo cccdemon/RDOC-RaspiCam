@@ -9,6 +9,10 @@
 {$PUBLIC_HOSTNAME} {
     encode gzip
 
+    tls {
+        dns cloudflare {$CLOUDFLARE_API_TOKEN}
+    }
+
     header {
         Strict-Transport-Security "max-age=31536000; includeSubDomains"
         X-Frame-Options DENY

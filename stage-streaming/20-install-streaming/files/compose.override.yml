@@ -27,7 +27,7 @@ services:
           memory: 256M
 
   caddy:
-    image: caddy:2-alpine
+    image: chaoscrew/caddy-cloudflare:local
     container_name: rdoc-streaming-caddy
     profiles: ["public"]
     ports:
@@ -39,6 +39,7 @@ services:
     environment:
       - PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME}
       - PUBLIC_EMAIL=${PUBLIC_EMAIL:-admin@example.com}
+      - CLOUDFLARE_API_TOKEN=${CLOUDFLARE_API_TOKEN}
     depends_on:
       - web-ui
       - mediamtx

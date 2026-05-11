@@ -11,10 +11,11 @@ set -euo pipefail
 
 PLATFORM=linux/arm64
 MEDIAMTX_IMAGE="chaoscrew/mediamtx-pi-ffmpeg:local"
+CADDY_IMAGE="chaoscrew/caddy-cloudflare:local"
 IMAGES=(
   "${MEDIAMTX_IMAGE}"
   "nginx:alpine"
-  "caddy:2-alpine"
+  "${CADDY_IMAGE}"
 )
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -29,9 +30,15 @@ docker build --platform "${PLATFORM}" \
   -t "${MEDIAMTX_IMAGE}" \
   "${SCRIPT_DIR}/.."
 
+echo "==> Building ${CADDY_IMAGE} for ${PLATFORM}"
+docker build --platform "${PLATFORM}" \
+  -f "${SCRIPT_DIR}/caddy-cloudflare.Dockerfile" \
+  -t "${CADDY_IMAGE}" \
+  "${SCRIPT_DIR}/.."
+
 for img in "${IMAGES[@]}"; do
   echo "==> Pulling ${img} for ${PLATFORM}"
-  if [ "${img}" != "${MEDIAMTX_IMAGE}" ]; then
+  if [ "${img}" != "${MEDIAMTX_IMAGE}" ] && [ "${img}" != "${CADDY_IMAGE}" ]; then
     docker pull --platform "${PLATFORM}" "${img}"
   fi
 done

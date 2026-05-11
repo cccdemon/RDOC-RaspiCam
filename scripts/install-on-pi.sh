@@ -94,8 +94,12 @@ build_runtime_images() {
         -t chaoscrew/mediamtx-pi-ffmpeg:local \
         "${REPO_DIR}"
 
+    docker build --platform linux/arm64 \
+        -f "${REPO_DIR}/tools/caddy-cloudflare.Dockerfile" \
+        -t chaoscrew/caddy-cloudflare:local \
+        "${REPO_DIR}"
+
     docker pull --platform linux/arm64 nginx:alpine
-    docker pull --platform linux/arm64 caddy:2-alpine
 }
 
 apply_sd_tuning() {
@@ -140,6 +144,7 @@ disable_unused_services() {
 
 main() {
     require_file "${REPO_DIR}/tools/mediamtx-pi-ffmpeg.Dockerfile"
+    require_file "${REPO_DIR}/tools/caddy-cloudflare.Dockerfile"
     require_file "${PI_FILES}/20-install-streaming/files/compose.override.yml"
 
     echo "==> Setting hostname: ${HOSTNAME_VALUE}"

@@ -28,6 +28,20 @@ Optional:
 SERVER_TECH_REPO=cccdemon/homecam-docker SERVER_TECH_REF=main sudo -E scripts/install-on-pi.sh
 ```
 
+Public TLS via Cloudflare DNS-Challenge:
+
+```bash
+sudo nano /opt/server-tech/.env
+# set:
+# PUBLIC_HOSTNAME=stream.example.org
+# PUBLIC_EMAIL=admin@example.org
+# CLOUDFLARE_API_TOKEN=<token with Zone.DNS:Edit>
+
+sudo systemctl restart chaoscrew-streaming
+```
+
+The installer builds a local Caddy image with the Cloudflare DNS plugin. DNS-01 does not require port 80 for certificate issuance; expose/forward 443 for browser access.
+
 ## Quick Start (Legacy: eigenes Image bauen)
 
 ```powershell
