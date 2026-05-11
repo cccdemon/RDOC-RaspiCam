@@ -99,6 +99,12 @@ build_runtime_images() {
         -t chaoscrew/caddy-cloudflare:local \
         "${REPO_DIR}"
 
+    docker compose \
+        -f "${SERVER_TECH_DIR}/docker-compose.yml" \
+        -f "${SERVER_TECH_DIR}/compose.override.yml" \
+        --env-file "${SERVER_TECH_DIR}/.env" \
+        build camera-control
+
     docker pull --platform linux/arm64 nginx:alpine
 }
 

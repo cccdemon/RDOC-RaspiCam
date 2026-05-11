@@ -49,4 +49,10 @@ services:
       - mediamtx
     networks:
       - streaming
+
+  camera-control:
+    devices:
+      - ${CAMERA_DEVICE:-/dev/video0}:/dev/video0:rwm
+    environment:
+      - CAMERA_DEVICE=/dev/video0
     restart: unless-stopped
